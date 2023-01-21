@@ -8,7 +8,6 @@ const getIdsFromCollection = async (collectionId) => {
         // need to send the request as a x-www-form-urlencoded as steam web api is weird
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: new URLSearchParams({
-            // key: "...",
             collectioncount: "1",
             "publishedfileids[0]": collectionId,
         }),
@@ -21,17 +20,41 @@ const getIdsFromCollection = async (collectionId) => {
     return await jsonResponse;
 };
 
+const formatModListIntoDictionary = (modIdArray) => {
+    let modDictionary = {};
+    for (let i in modIdArray) {
+        let num = i;
+        modDictionary[`publishedfileids[${num}]`] = parseInt(modIdArray[i]);
+    }
+    console.log(modDictionary);
+    return modDictionary;
+};
+
+// bit of a messy piece of code - will be refactored, however its very delicate at the moment
 const getWorkshopIds = async (modIdsArray) => {
+    // API url
     const url =
         "https://api.steampowered.com/ISteamRemoteStorage/GetPublishedFileDetails/v1/";
-    console.log(modIdsArray.length);
+    // create a form data to be passed into the fetch request with the length of the collection
+    let body = new URLSearchParams({
+        itemcount: Object.keys(modIdsArray).length,
+    });
+    // for each key in the list, add to the form data the key and value pair as a new line
+    for (let i = 0; i < Object.keys(modIdsArray).length; i++) {
+        body.append(Object.keys(modIdsArray)[i], Object.values(modIdsArray)[i]);
+    }
+    // set options to be sent to the api request
     const options = {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: new URLSearchParams({
-            itemcount: modIdsArray.length,
-        }),
+        body: body,
     };
+    // get the response, then convert to json format response
+    let response = await (await fetch(url, options)).json();
+    let jsonResponse = await JSON.stringify(response, null, 2);
+    // log it to the console as a json string
+    console.log(jsonResponse);
+    return jsonResponse;
 };
 
 // converts the json object into a easy to manage array of mod ids, ready to be passed into the main API call that returns all of the workshop ids
@@ -51,8 +74,8 @@ const main = async () => {
     // main runner code
     let jsonString = await getIdsFromCollection(2916244611);
     let modIdsArray = getModIdsFromJsonObj(jsonString);
-    getWorkshopIds(modIdsArray);
-    console.log(modIdsArray);
+    const modDictionary = formatModListIntoDictionary(modIdsArray);
+    getWorkshopIds(modDictionary);
 };
 
 main();
