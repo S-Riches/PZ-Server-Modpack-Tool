@@ -5,12 +5,15 @@
     "type": "module",
     "main": "app.js",
     "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1"
+        "test": "npx cucumber-js"
     },
     "author": "s-riches",
     "license": "ISC",
     "dependencies": {
         "express": "^4.18.2",
         "node-fetch": "^3.3.0"
+    },
+    "devDependencies": {
+        "@cucumber/cucumber": "^8.10.0"
     }
 }

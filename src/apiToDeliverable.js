@@ -32,7 +32,6 @@ const formatModListIntoDictionary = (modIdArray) => {
 
 // bit of a messy piece of code - will be refactored, however its very delicate at the moment
 const getWorkshopIds = async (modIdsArray) => {
-    // API url
     const url =
         "https://api.steampowered.com/ISteamRemoteStorage/GetPublishedFileDetails/v1/";
     // create a form data to be passed into the fetch request with the length of the collection
@@ -50,10 +49,8 @@ const getWorkshopIds = async (modIdsArray) => {
         body: body,
     };
     // get the response, then convert to json format response
-    let response = await (await fetch(url, options)).json();
-    let jsonResponse = await JSON.stringify(response, null, 2);
+    let jsonResponse = await (await fetch(url, options)).json();
     // log it to the console as a json string
-    console.log(jsonResponse);
     return jsonResponse;
 };
 
@@ -70,12 +67,34 @@ const getModIdsFromJsonObj = (jsonString) => {
     return modIdsArray;
 };
 
-const main = async () => {
-    // main runner code
-    let jsonString = await getIdsFromCollection(2916244611);
-    let modIdsArray = getModIdsFromJsonObj(jsonString);
-    const modDictionary = formatModListIntoDictionary(modIdsArray);
-    getWorkshopIds(modDictionary);
+// format the data into [workshopId, modId, title, imageCDNLink], return it as an array with arrays inside it
+const createReturnData = (jsonResponse) => {
+    // filter out what only what is needed
+    jsonResponse = jsonResponse.response.publishedfiledetails;
+    let returnDataArray = [];
+    // RegEx to get the modId and workshop Id from the description
+    const modIdRegEx = new RegExp(/.*Mod ID: .*\n?/);
+    const workshopIdRegEx = new RegExp(/.*Workshop ID: .*\n?/);
+
+    // loop over the response, grabbing each object in the list
+    for (let i = 0; i < jsonResponse.length; i++) {
+        let internalDataArr = [
+            modIdRegEx.exec(jsonResponse[i].description),
+            workshopIdRegEx.exec(jsonResponse[i].description),
+            jsonResponse[i].title,
+            jsonResponse[i].preview_url,
+        ];
+        returnDataArray.push(internalDataArr);
+    }
+    console.log(returnDataArray);
+    return returnDataArray;
 };
 
-main();
+// export these to be used in the main runner (app.js)
+export {
+    createReturnData,
+    getIdsFromCollection,
+    getModIdsFromJsonObj,
+    getWorkshopIds,
+    formatModListIntoDictionary,
+};
