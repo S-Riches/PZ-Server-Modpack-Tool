@@ -27,7 +27,7 @@ const createDataForServerConfig = (returnDataArray, separator) => {
 
 const main = async () => {
     // main runner code
-    let jsonString = await getIdsFromCollection(2917252112);
+    let jsonString = await getIdsFromCollection(2854268080);
     let modIdsArray = getModIdsFromJsonObj(jsonString);
     const modDictionary = formatModListIntoDictionary(modIdsArray);
     let jsonResponse = await getWorkshopIds(modDictionary);
