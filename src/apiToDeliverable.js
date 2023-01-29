@@ -26,7 +26,6 @@ const formatModListIntoDictionary = (modIdArray) => {
         let num = i;
         modDictionary[`publishedfileids[${num}]`] = parseInt(modIdArray[i]);
     }
-    console.log(modDictionary);
     return modDictionary;
 };
 
@@ -77,10 +76,11 @@ const createReturnData = (jsonResponse) => {
     const workshopIdRegEx = new RegExp(/.*Workshop ID: .*\n?/);
 
     // loop over the response, grabbing each object in the list
+    // for the regex, get the data back which is the first response, instead of all the return data
     for (let i = 0; i < jsonResponse.length; i++) {
         let internalDataArr = [
-            modIdRegEx.exec(jsonResponse[i].description),
-            workshopIdRegEx.exec(jsonResponse[i].description),
+            modIdRegEx.exec(jsonResponse[i].description)[0],
+            workshopIdRegEx.exec(jsonResponse[i].description)[0],
             jsonResponse[i].title,
             jsonResponse[i].preview_url,
         ];

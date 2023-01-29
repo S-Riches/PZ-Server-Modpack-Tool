@@ -5,15 +5,17 @@
     "type": "module",
     "main": "app.js",
     "scripts": {
-        "test": "jest"
+        "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js"
     },
     "author": "s-riches",
     "license": "ISC",
     "dependencies": {
+        "@types/jest": "^29.4.0",
         "express": "^4.18.2",
         "node-fetch": "^3.3.0"
     },
     "devDependencies": {
+        "@babel/preset-env": "^7.20.2",
         "jest": "^29.4.1"
     }
 }
