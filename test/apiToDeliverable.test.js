@@ -24,8 +24,14 @@ describe("able to get the ids from a steam collection", () => {
     });
     // null testing
     test("when a no collection id is given", async () => {
-        let output = JSON.parse(await getIdsFromCollection());
-        expect(JSON.stringify(output)).toBe("{}");
+        let output = await getIdsFromCollection();
+        // only returns this as its a null json string, and
+        expect(output).toBe("{}");
+    });
+    // given alpha characters when expecting numbers
+    test("when a string is given instead of a number", async () => {
+        let output = await getIdsFromCollection("testString");
+        expect(output).toBe("{}");
     });
 });
 
@@ -70,9 +76,27 @@ describe("you can convert a json string into a mod id array", () => {
             getModIdsFromJsonObj(testJsonStringInput).length
         ).toBeGreaterThanOrEqual(1);
     });
+    // negative testing
+    test("When a invalid Json string is given", () => {
+        const invalidStringInput = "Test";
+        expect(getModIdsFromJsonObj(invalidStringInput)).toBe(
+            "Invalid data type given"
+        );
+    });
+    // number input
+    test("When a number is given", () => {
+        const numberInput = 123124124124;
+        expect(getModIdsFromJsonObj(numberInput)).toBe(
+            "Invalid data type given"
+        );
+    });
+    test("when no value is given", () => {
+        expect(getModIdsFromJsonObj()).toBe("Invalid data type given");
+    });
 });
 
 describe("Testing the formatting list into dictionary ", () => {
+    // postitive testing
     test("Given 4 array elements, check there are 4 key/value pairs in the outputted dictionary", () => {
         const testArray = [
             "1539281445",
@@ -84,6 +108,7 @@ describe("Testing the formatting list into dictionary ", () => {
             4
         );
     });
+    // postitive testing
     test("Check that the formatted mod list has the correct key names", () => {
         const testArray = [
             "1539281445",

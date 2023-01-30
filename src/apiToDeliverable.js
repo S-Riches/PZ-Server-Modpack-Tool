@@ -56,9 +56,23 @@ const getWorkshopIds = async (modIdsArray) => {
 // converts the json object into a easy to manage array of mod ids, ready to be passed into the main API call that returns all of the workshop ids
 const getModIdsFromJsonObj = (jsonString) => {
     let modIdsArray = [];
-    let jsonObj = JSON.parse(jsonString);
+    // definition of the variable
+    let jsonObj;
+    try {
+        // attempt to parse the string as a JSON obj
+        jsonObj = JSON.parse(jsonString);
+    } catch {
+        console.log("ERROR : Invalid data type given for getModIdsFromJsonObj");
+        return "Invalid data type given";
+    }
     // goes through the json object and slims it down to just the info we need
-    const modsList = jsonObj.response.collectiondetails[0].children;
+    let modsList;
+    try {
+        modsList = jsonObj.response.collectiondetails[0].children;
+    } catch {
+        console.log("ERROR : incorrect JSON format for function");
+        return "Invalid data type given";
+    }
     for (let i in modsList) {
         // for reference if i need the sort order than it can be included here by removing the publishedfileid
         modIdsArray.push(modsList[i].publishedfileid);
