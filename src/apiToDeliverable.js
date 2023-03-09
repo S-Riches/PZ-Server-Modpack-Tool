@@ -93,6 +93,7 @@ const createReturnData = (jsonResponse) => {
     // for the regex, get the data back which is the first response, instead of all the return data
     for (let i = 0; i < jsonResponse.length; i++) {
         let internalDataArr = [
+            // TODO when working with a big modpack, we get a 'cant index 0 error here'
             modIdRegEx.exec(jsonResponse[i].description)[0],
             workshopIdRegEx.exec(jsonResponse[i].description)[0],
             jsonResponse[i].title,

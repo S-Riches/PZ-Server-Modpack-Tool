@@ -5,6 +5,7 @@
     "type": "module",
     "main": "app.js",
     "scripts": {
+        "start": "node ./src/app.js",
         "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js"
     },
     "author": "s-riches",
