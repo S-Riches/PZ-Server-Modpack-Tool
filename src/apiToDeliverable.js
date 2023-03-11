@@ -1,3 +1,4 @@
+import { json } from "express";
 import fetch from "node-fetch";
 
 // Grabs the workshop ids of each mod in a collection - then returns it in a json string to be worked with later on in the script
@@ -86,23 +87,74 @@ const createReturnData = (jsonResponse) => {
     jsonResponse = jsonResponse.response.publishedfiledetails;
     let returnDataArray = [];
     // RegEx to get the modId and workshop Id from the description
-    const modIdRegEx = new RegExp(/.*Mod ID: .*\n?/);
-    const workshopIdRegEx = new RegExp(/.*Workshop ID: .*\n?/);
+    const modIdRegEx = new RegExp(/.*Mod ID: .*\n?/g);
+    const workshopIdRegEx = new RegExp(/.*Workshop ID: .*\n?/g);
 
     // loop over the response, grabbing each object in the list
     // for the regex, get the data back which is the first response, instead of all the return data
     for (let i = 0; i < jsonResponse.length; i++) {
+        // get all of the mod ids and workshop ids present in each workshop page
+        let modIds = String(jsonResponse[i].description).match(modIdRegEx);
+        let workshopIds = String(jsonResponse[i].description).match(
+            workshopIdRegEx
+        );
+        // this is normally to do with people putting ModID instead of Mod ID
+        if (modIds === null) {
+            modIds = String(jsonResponse[i].description).match(
+                new RegExp(/.*ModID: .*\n?/g)
+            );
+        }
+        // if no mod id or workshop id was found, or workshop id chances are someone forgot to add them or there is an edge case, either way ask the user to raise this issue and give them the mod page link
+        if (modIds === null || workshopIds === null) {
+            console.log(
+                `Error : the mod '${jsonResponse[i].title}' is missing the mod id and/or workshop id, please manually look for it, if its there, raise an issue on the github page!`
+            );
+            // skip iteration
+            continue;
+        }
+        // remove new line chars and trailing white spaces
+        for (let i = 0; i < modIds.length; i++) {
+            modIds[i] = modIds[i].trim();
+        }
+        for (let i = 0; i < workshopIds.length; i++) {
+            workshopIds[i] = workshopIds[i].trim();
+        }
+        // convert to sets to avoid duplicates
+        modIds = new Set(modIds);
+        workshopIds = new Set(workshopIds);
+        // then convert them back to arrays
+        modIds = [...modIds];
+        workshopIds = [...workshopIds];
+        // TODO do validation to check for multiple options, at the moment just returning the first mod id
         let internalDataArr = [
-            // TODO when working with a big modpack, we get a 'cant index 0 error here'
-            modIdRegEx.exec(jsonResponse[i].description)[0],
-            workshopIdRegEx.exec(jsonResponse[i].description)[0],
+            modIds[0],
+            workshopIds,
             jsonResponse[i].title,
             jsonResponse[i].preview_url,
         ];
         returnDataArray.push(internalDataArr);
     }
-    console.log(returnDataArray);
     return returnDataArray;
+};
+
+// used for turning the return data into the lists for the user.
+const createDataForServerConfig = (returnDataArray, separator) => {
+    let modIdString = "";
+    let workshopIdString = "";
+    for (let i = 0; i < returnDataArray.length; i++) {
+        // TODO need to check for duplicate mod ids and workshop ids on the page
+        modIdString +=
+            String(returnDataArray[i][0]).replace("Mod ID: ", "") +
+            `${separator}`;
+        workshopIdString +=
+            String(returnDataArray[i][1]).replace("Workshop ID: ", "") +
+            `${separator}`;
+    }
+    // cleanup of newline characters using regex and the replace method to get rid of \r\n, \r, \n chars
+    modIdString = modIdString.replace(/\r?\n|\r/gm, "");
+    workshopIdString = workshopIdString.replace(/\r?\n|\r/gm, "");
+    let modAndWorkshopIds = [modIdString, workshopIdString];
+    return modAndWorkshopIds;
 };
 
 // export these to be used in the main runner (app.js)
@@ -112,4 +164,5 @@ export {
     getModIdsFromJsonObj,
     getWorkshopIds,
     formatModListIntoDictionary,
+    createDataForServerConfig,
 };

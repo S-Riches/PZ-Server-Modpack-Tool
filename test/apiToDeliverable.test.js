@@ -131,21 +131,20 @@ describe("Trying to break the methods", () => {
     test("when we give a workshop item with multiple mod ids", async () => {
         let testDict = { "publishedfileids[0]": "2651128766" };
         let res = createReturnData(await getWorkshopIds(testDict));
-        console.log(res);
-        // expect(res).toBe;
+        console.log(res[0][0]);
+        // need to have all options for mod ids, to allow for user selection
+        expect(res[0][0]).toEqual([
+            "Mod ID: AkyFingersFem",
+            "Mod ID: AkyFingers",
+        ]);
     });
-});
 
-test("When working with a huge mod pack", async () => {
-    // get the json object from steam
-    let jsonString = await getIdsFromCollection(2942023507);
-    // console.log(jsonString);
-    let modIdsArr = getModIdsFromJsonObj(jsonString);
-    // console.log(modIdsArr);
-    let modDict = formatModListIntoDictionary(modIdsArr);
-    // console.log(modDict);
-    let jsonResponse = await getWorkshopIds(modDict);
-    console.log(jsonResponse);
-    let returnDataArray = createReturnData(jsonResponse);
-    console.log(returnDataArray);
+    test("When working with a huge mod pack", async () => {
+        // get the json object from steam
+        let jsonString = await getIdsFromCollection(2942023507);
+        let modIdsArr = getModIdsFromJsonObj(jsonString);
+        let modDict = formatModListIntoDictionary(modIdsArr);
+        let jsonResponse = await getWorkshopIds(modDict);
+        let returnDataArray = createReturnData(jsonResponse);
+    });
 });
