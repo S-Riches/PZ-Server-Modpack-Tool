@@ -7,20 +7,45 @@ import {
     formatModListIntoDictionary,
     createDataForServerConfig,
 } from "./apiToDeliverable.js";
+import express from "express";
+import bodyParser from "body-parser";
 
-const main = async () => {
-    // main runner code
-    let jsonString = await getIdsFromCollection(2942023507);
+// basic express config options
+const app = express();
+const port = 9999;
+// parse the body as a JSON object
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
+
+//  default path should return something, will guide the user in the future
+app.get("/", (req, res) => {
+    res.send("based");
+});
+
+app.post("/collection", async (req, res) => {
+    const collectionPage = req.body;
+    console.log(collectionPage);
+    // get the workshop Id from the string using regex
+    const id = String(collectionPage.link).match(/[0-9]+/g);
+    console.log(id);
+    let jsonString = await getIdsFromCollection(id);
     let modIdsArray = getModIdsFromJsonObj(jsonString);
     const modDictionary = formatModListIntoDictionary(modIdsArray);
     let jsonResponse = await getWorkshopIds(modDictionary);
     // main deliverable for the user
     let returnDataArray = createReturnData(jsonResponse);
-    // can be customized based on the separator needed, will only be one character, defaults to ; as this is what PZ uses by default.
-    // TODO needs to be sanitized before putting into sql db
-    let out = createDataForServerConfig(returnDataArray, ";");
-    console.log(out);
-};
+    res.send(returnDataArray);
+});
+/* 
+get a steam webpage
+strip it to the id
+return a list with all the mod ids and workshop ids
+provide another way to convert that to the data list
+*/
 
-// run the script
-main();
+app.post("/modpackData", async (req, res) => {
+    res.send("this does nothing yet, just planning out the structure");
+});
+
+app.listen(port);
+console.log("Server started at http://localhost:" + port);

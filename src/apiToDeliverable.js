@@ -1,4 +1,3 @@
-import { json } from "express";
 import fetch from "node-fetch";
 
 // Grabs the workshop ids of each mod in a collection - then returns it in a json string to be worked with later on in the script
@@ -125,9 +124,8 @@ const createReturnData = (jsonResponse) => {
         // then convert them back to arrays
         modIds = [...modIds];
         workshopIds = [...workshopIds];
-        // TODO do validation to check for multiple options, at the moment just returning the first mod id
         let internalDataArr = [
-            modIds[0],
+            modIds,
             workshopIds,
             jsonResponse[i].title,
             jsonResponse[i].preview_url,

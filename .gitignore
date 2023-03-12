@@ -3,3 +3,4 @@ node_modules
 .env
 example.json
 testPlan.txt
+designDoc.md
