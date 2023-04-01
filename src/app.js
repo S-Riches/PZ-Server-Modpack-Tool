@@ -8,14 +8,17 @@ import {
     createDataForServerConfig,
 } from "./apiToDeliverable.js";
 import express from "express";
-import bodyParser from "body-parser";
+import cors from "cors";
 
 // basic express config options
 const app = express();
 const port = 9999;
 // parse the body as a JSON object
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
+const corsOption = {
+    origin: ["http://localhost:3000"],
+};
+app.use(express.json());
+app.use(cors(corsOption));
 
 //  default path should return something, will guide the user in the future
 app.get("/", (req, res) => {
@@ -23,18 +26,20 @@ app.get("/", (req, res) => {
 });
 
 app.post("/collection", async (req, res) => {
-    const collectionPage = req.body;
-    console.log(collectionPage);
     // get the workshop Id from the string using regex
-    const id = String(collectionPage.link).match(/[0-9]+/g);
+    const id = String(await req.body.link).match(/[0-9]+/g);
     console.log(id);
-    let jsonString = await getIdsFromCollection(id);
-    let modIdsArray = getModIdsFromJsonObj(jsonString);
-    const modDictionary = formatModListIntoDictionary(modIdsArray);
-    let jsonResponse = await getWorkshopIds(modDictionary);
-    // main deliverable for the user
-    let returnDataArray = createReturnData(jsonResponse);
-    res.send(returnDataArray);
+    try {
+        let jsonString = await getIdsFromCollection(id);
+        let modIdsArray = getModIdsFromJsonObj(jsonString);
+        const modDictionary = formatModListIntoDictionary(modIdsArray);
+        let jsonResponse = await getWorkshopIds(modDictionary);
+        // main deliverable for the user
+        let returnDataArray = createReturnData(jsonResponse);
+        res.send(returnDataArray);
+    } catch {
+        res.status(500).send("Internal server error occured");
+    }
 });
 /* 
 get a steam webpage
