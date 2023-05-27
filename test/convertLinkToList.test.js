@@ -4,7 +4,7 @@ import {
     formatModListIntoDictionary,
     getWorkshopIds,
     createReturnData,
-} from "../src/apiToDeliverable.js";
+} from "../src/convertLinkToList.js";
 
 describe("able to get the ids from a steam collection", () => {
     // positive testing

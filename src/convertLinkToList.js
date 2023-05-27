@@ -1,7 +1,8 @@
 import fetch from "node-fetch";
 
 // Grabs the workshop ids of each mod in a collection - then returns it in a json string to be worked with later on in the script
-const getIdsFromCollection = async (collectionId) => {
+const getIdsFromCollection = async (link) => {
+    const collectionId = String(link).match(/[0-9]+/g);
     const url = `https://api.steampowered.com/ISteamRemoteStorage/GetCollectionDetails/v1/`;
     const options = {
         method: "POST",
@@ -155,8 +156,18 @@ const createDataForServerConfig = (returnDataArray, separator) => {
     return modAndWorkshopIds;
 };
 
-// export these to be used in the main runner (app.js)
+// main bundled function to handle link -> return data
+const convertLinkToList = async () => {
+    let jsonString = await getIdsFromCollection(id);
+    let modIdsArray = getModIdsFromJsonObj(jsonString);
+    const modDictionary = formatModListIntoDictionary(modIdsArray);
+    let jsonResponse = await getWorkshopIds(modDictionary);
+    return createReturnData(jsonResponse);
+};
+
+// export these to be used in the main runner / unit tests(app.js)
 export {
+    convertLinkToList,
     createReturnData,
     getIdsFromCollection,
     getModIdsFromJsonObj,

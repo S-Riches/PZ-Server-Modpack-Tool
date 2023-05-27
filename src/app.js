@@ -1,12 +1,5 @@
 // imports the functions from the separate script
-import {
-    createReturnData,
-    getIdsFromCollection,
-    getModIdsFromJsonObj,
-    getWorkshopIds,
-    formatModListIntoDictionary,
-    createDataForServerConfig,
-} from "./apiToDeliverable.js";
+import { convertLinkToList } from "./convertLinkToList.js";
 import express from "express";
 import cors from "cors";
 
@@ -26,37 +19,16 @@ app.get("/", (req, res) => {
 });
 
 app.post("/collection", async (req, res) => {
-    // get the workshop Id from the string using regex
-    const id = String(await req.body.link).match(/[0-9]+/g);
-    console.log(id);
+    console.time("mainCall");
     try {
-        // pass the collection id in here
-        let jsonString = await getIdsFromCollection(id);
-        console.log("JSON STRING : \n\n" + jsonString);
-        // pass the returned mod id array into this method which gets the mod details
-        let modIdsArray = getModIdsFromJsonObj(jsonString);
-        console.log("mod id array : \n\n" + modIdsArray);
-        const modDictionary = formatModListIntoDictionary(modIdsArray);
-        console.log("mod dictionary: \n\n" + JSON.stringify(modDictionary));
-        let jsonResponse = await getWorkshopIds(modDictionary);
-        console.log("json response : \n\n" + JSON.stringify(jsonResponse));
         // main deliverable for the user
-        let returnDataArray = createReturnData(jsonResponse);
+        let returnDataArray = convertLinkToList(await req.body.link);
         console.log("return data array : \n\n" + returnDataArray);
         res.send(returnDataArray);
     } catch {
-        res.status(500).send("Internal server error occured");
+        res.status(500).send("Internal server error occurred");
     }
-});
-/* 
-get a steam webpage
-strip it to the id
-return a list with all the mod ids and workshop ids
-provide another way to convert that to the data list
-*/
-
-app.post("/modpackData", async (req, res) => {
-    res.send("this does nothing yet, just planning out the structure");
+    console.timeEnd("mainCall");
 });
 
 app.listen(port);
