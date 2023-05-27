@@ -1,7 +1,7 @@
 {
     "name": "pz-server-kit",
     "version": "1.0.0",
-    "description": "tool to help pz server owners switch mod packs",
+    "description": "api to help pz server owners switch mod packs",
     "type": "module",
     "main": "app.js",
     "scripts": {

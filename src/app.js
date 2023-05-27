@@ -30,12 +30,19 @@ app.post("/collection", async (req, res) => {
     const id = String(await req.body.link).match(/[0-9]+/g);
     console.log(id);
     try {
+        // pass the collection id in here
         let jsonString = await getIdsFromCollection(id);
+        console.log("JSON STRING : \n\n" + jsonString);
+        // pass the returned mod id array into this method which gets the mod details
         let modIdsArray = getModIdsFromJsonObj(jsonString);
+        console.log("mod id array : \n\n" + modIdsArray);
         const modDictionary = formatModListIntoDictionary(modIdsArray);
+        console.log("mod dictionary: \n\n" + JSON.stringify(modDictionary));
         let jsonResponse = await getWorkshopIds(modDictionary);
+        console.log("json response : \n\n" + JSON.stringify(jsonResponse));
         // main deliverable for the user
         let returnDataArray = createReturnData(jsonResponse);
+        console.log("return data array : \n\n" + returnDataArray);
         res.send(returnDataArray);
     } catch {
         res.status(500).send("Internal server error occured");
